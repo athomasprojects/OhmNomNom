@@ -1,5 +1,5 @@
 (test
  (name nom_label_test)
- (libraries ohmnomnom alcotest core)
+ (libraries ohmnom alcotest core)
  (preprocess
   (pps ppx_deriving.show ppx_jane ppx_sexp_conv)))

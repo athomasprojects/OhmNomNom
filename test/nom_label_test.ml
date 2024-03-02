@@ -1,5 +1,5 @@
 open Core
-module Label = Ohmnomnom.Label
+module Label = Ohmnom.Parser.Label
 
 module Test = struct
   let label_testable = Alcotest.testable Label.pp Label.equal
