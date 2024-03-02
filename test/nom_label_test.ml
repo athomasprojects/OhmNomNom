@@ -29,12 +29,27 @@ module Test = struct
     List.iter2_exn lbls expected ~f:(fun lbl expected ->
       Alcotest.(check label_testable) "same Label.t" expected lbl)
   ;;
+
+  let test_label_to_string () =
+    let expected = String.lowercase "2114_post_annealing_P360_r2c3_light" in
+    let lbl =
+      Label.parse_label "2114_post_annealing_P360_r2c3_light.txt"
+      |> Label.to_string
+    in
+    Alcotest.(check string) "same string" expected lbl
+  ;;
 end
 
 let () =
   Alcotest.run
     "Ohmnom Label Test Suite"
-    [ ( "init-lexer"
+    [ ( "parse label"
       , [ Alcotest.test_case "Parse file name" `Quick Test.test_parse_label ] )
+    ; ( "to_string"
+      , [ Alcotest.test_case
+            "Convert Label.t to string"
+            `Quick
+            Test.test_label_to_string
+        ] )
     ]
 ;;

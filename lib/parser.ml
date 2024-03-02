@@ -91,10 +91,11 @@ module Label = struct
       in
       return { id; annealed; pitch; pos; illum }
     in
-    parse_string ~consume:Prefix parser f |> Result.ok_or_failwith
+    parse_string ~consume:Prefix parser (String.lowercase f)
+    |> Result.ok_or_failwith
   ;;
 
-  let string_of_label lbl =
+  let to_string lbl =
     let string_of_illum = function
       | true -> "light"
       | false -> "dark"
