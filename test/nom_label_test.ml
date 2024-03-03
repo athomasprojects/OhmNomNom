@@ -4,7 +4,7 @@ module Label = Ohmnom.Label
 module Test = struct
   let label_testable = Alcotest.testable Label.pp Label.equal
 
-  let test_parse_label () =
+  let test_label_make () =
     (* TODO: Move label test cases into separate tests for better debugging. *)
     let lbls =
       List.map
@@ -13,7 +13,7 @@ module Test = struct
         ; "452_after_annealing_p123456789_r3c3_dark.txt"
         ; "3_pre_annealing_p69420_r5c20_light.txt"
         ]
-        ~f:Label.parse_label
+        ~f:Label.make
     in
     let expected : Label.t list =
       [ { id = 2114; annealed = true; pitch = 360; pos = 2, 3; illum = true }
@@ -31,11 +31,10 @@ module Test = struct
       Alcotest.(check label_testable) "same Label.t" expected lbl)
   ;;
 
-  let test_label_to_string () =
+  let test_label_recover_filename () =
     let expected = "2114_post_annealing_p360_r2c3_light" in
     let lbl =
-      Label.parse_label "2114_post_annealing_p360_r2c3_light.txt"
-      |> Label.to_string
+      Label.make "2114_post_annealing_p360_r2c3_light.txt" |> Label.to_string
     in
     Alcotest.(check string) "same string" expected lbl
   ;;
@@ -45,12 +44,16 @@ let () =
   Alcotest.run
     "Testing `Label`"
     [ ( "parse_label"
-      , [ Alcotest.test_case "Parse file name to `Label.t`" `Quick Test.test_parse_label ] )
+      , [ Alcotest.test_case
+            "Parse file name to `Label.t`"
+            `Quick
+            Test.test_label_make
+        ] )
     ; ( "to_string"
       , [ Alcotest.test_case
             "Recover original filename"
             `Quick
-            Test.test_label_to_string
+            Test.test_label_recover_filename
         ] )
     ]
 ;;

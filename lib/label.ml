@@ -9,7 +9,7 @@ type t =
   }
 [@@deriving show, eq]
 
-let parse_label f =
+let make f =
   let open Parser.A in
   let is_illum = function
     | "dark" -> false
@@ -38,6 +38,19 @@ let parse_label f =
 ;;
 
 let to_string lbl =
+  String.concat
+    ~sep:" "
+    [ Int.to_string lbl.id
+    ; "pitch: " ^ Int.to_string lbl.pitch ^ " nm - "
+    ; "("
+      ^ Int.to_string (fst lbl.pos)
+      ^ ", "
+      ^ Int.to_string (snd lbl.pos)
+      ^ ")"
+    ]
+;;
+
+let recover_filename lbl =
   let string_of_illum = function
     | true -> "light"
     | false -> "dark"

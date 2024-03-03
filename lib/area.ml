@@ -1,13 +1,13 @@
 open Core
 
-type metre_t = Metre [@@deriving show]
+type metre_t = Metre [@@deriving show, eq]
 
 type t =
   { prefix : Prefix.t
   ; value : float
   ; quantity : metre_t
   }
-[@@deriving show]
+[@@deriving show, eq]
 
 let to_string t =
   Float.to_string t.value ^ " " ^ Prefix.string_of_prefix t.prefix ^ "m^2"
