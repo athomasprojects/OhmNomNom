@@ -1,16 +1,17 @@
 open Core
-module Label = Ohmnom.Parser.Label
+module Label = Ohmnom.Label
 
 module Test = struct
   let label_testable = Alcotest.testable Label.pp Label.equal
 
   let test_parse_label () =
+    (* TODO: Move label test cases into separate tests for better debugging. *)
     let lbls =
       List.map
-        [ "2114_post_annealing_P360_r2c3_light.txt"
+        [ "2114_post_annealing_p360_r2c3_light.txt"
         ; "1068_before_annealing_p257_r1c0_dark.txt"
         ; "452_after_annealing_p123456789_r3c3_dark.txt"
-        ; "3_pre_annealing_P69420_r5c20_light.txt"
+        ; "3_pre_annealing_p69420_r5c20_light.txt"
         ]
         ~f:Label.parse_label
     in
@@ -31,9 +32,9 @@ module Test = struct
   ;;
 
   let test_label_to_string () =
-    let expected = String.lowercase "2114_post_annealing_P360_r2c3_light" in
+    let expected = "2114_post_annealing_p360_r2c3_light" in
     let lbl =
-      Label.parse_label "2114_post_annealing_P360_r2c3_light.txt"
+      Label.parse_label "2114_post_annealing_p360_r2c3_light.txt"
       |> Label.to_string
     in
     Alcotest.(check string) "same string" expected lbl
@@ -42,12 +43,12 @@ end
 
 let () =
   Alcotest.run
-    "Ohmnom Label Test Suite"
-    [ ( "parse label"
-      , [ Alcotest.test_case "Parse file name" `Quick Test.test_parse_label ] )
+    "Testing `Label`"
+    [ ( "parse_label"
+      , [ Alcotest.test_case "Parse file name to `Label.t`" `Quick Test.test_parse_label ] )
     ; ( "to_string"
       , [ Alcotest.test_case
-            "Convert Label.t to string"
+            "Recover original filename"
             `Quick
             Test.test_label_to_string
         ] )
