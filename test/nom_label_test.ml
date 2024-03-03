@@ -34,7 +34,8 @@ module Test = struct
   let test_label_recover_filename () =
     let expected = "2114_post_annealing_p360_r2c3_light" in
     let lbl =
-      Label.make "2114_post_annealing_p360_r2c3_light.txt" |> Label.to_string
+      Label.recover_filename
+        { id = 2114; annealed = true; pitch = 360; pos = 2, 3; illum = true }
     in
     Alcotest.(check string) "same string" expected lbl
   ;;
