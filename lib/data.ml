@@ -8,11 +8,31 @@ type t =
   }
 [@@deriving show, eq]
 
-type area =
-  { unit : string
-  ; prefix : Prefix.t
-  ; magnitude : float
-  }
+let voltage_prefix =
+  let open Parser.A in
+  char '('
+  *> take_till (fun ch ->
+    match ch with
+    | 'V' -> true
+    | _ -> false)
+  >>| fun t ->
+  match Prefix.prefix_of_string_opt t with
+  | Some p -> p
+  | None -> failwith "Invalid voltage unit prefix."
+;;
+
+let current_prefix =
+  let open Parser.A in
+  char '('
+  *> take_till (fun ch ->
+    match ch with
+    | 'A' -> true
+    | _ -> false)
+  >>| fun t ->
+  match Prefix.prefix_of_string_opt t with
+  | Some p -> p
+  | None -> failwith "Invalid current unit prefix."
+;;
 
 let read_units str =
   let open Parser.A in

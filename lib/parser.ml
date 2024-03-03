@@ -47,7 +47,7 @@ module A = struct
       match ch with
       | '-' -> true
       | '0' .. '9' -> true
-      | _ -> true)
+      | _ -> false)
   ;;
 
   let is_float = function
@@ -73,30 +73,5 @@ module A = struct
   let underscore = char '_'
   let skip_string str = skip_while (fun ch -> String.mem str ch)
   let umatch = underscore *> take_while is_letter <* underscore
-
-  let voltage_prefix =
-    char '('
-    *> take_till (fun ch ->
-      match ch with
-      | 'V' -> true
-      | _ -> false)
-    >>| fun t ->
-    match Prefix.prefix_of_string_opt t with
-    | Some p -> p
-    | None -> failwith "Invalid voltage unit prefix."
-  ;;
-
-  let current_prefix =
-    char '('
-    *> take_till (fun ch ->
-      match ch with
-      | 'A' -> true
-      | _ -> false)
-    >>| fun t ->
-    match Prefix.prefix_of_string_opt t with
-    | Some p -> p
-    | None -> failwith "Invalid current unit prefix."
-  ;;
-
   let surround_string ch = char ch *> take_while is_letter <* char ch
 end
