@@ -50,7 +50,13 @@ let to_string lbl =
     ]
 ;;
 
-let recover_filename lbl =
+let string_of_pitch pitch = "p" ^ Int.to_string pitch
+
+let string_of_pos pos =
+  "(" ^ Int.to_string (fst pos) ^ ", " ^ Int.to_string (snd pos) ^ ")"
+;;
+
+let to_filename lbl =
   let string_of_illum = function
     | true -> "light"
     | false -> "dark"
@@ -64,7 +70,7 @@ let recover_filename lbl =
     [ Int.to_string lbl.id
     ; string_of_annealed lbl.annealed
     ; "annealing"
-    ; "p" ^ Int.to_string lbl.pitch
+    ; string_of_pitch lbl.pitch
     ; "r" ^ Int.to_string (fst lbl.pos) ^ "c" ^ Int.to_string (snd lbl.pos)
     ; string_of_illum lbl.illum
     ]

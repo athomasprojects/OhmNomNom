@@ -31,10 +31,10 @@ module Test = struct
       Alcotest.(check label_testable) "same Label.t" expected lbl)
   ;;
 
-  let test_label_recover_filename () =
+  let test_label_to_filename () =
     let expected = "2114_post_annealing_p360_r2c3_light" in
     let lbl =
-      Label.recover_filename
+      Label.to_filename
         { id = 2114; annealed = true; pitch = 360; pos = 2, 3; illum = true }
     in
     Alcotest.(check string) "same string" expected lbl
@@ -52,9 +52,9 @@ let () =
         ] )
     ; ( "to_string"
       , [ Alcotest.test_case
-            "Recover original filename"
+            "Recover filename"
             `Quick
-            Test.test_label_recover_filename
+            Test.test_label_to_filename
         ] )
     ]
 ;;

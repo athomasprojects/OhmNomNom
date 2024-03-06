@@ -1,0 +1,76 @@
+# FONT
+font.family: Berkeley Mono Variable
+font.sans-serif: Berkeley Mono Variable
+font.style: normal
+font.weight: 400
+font.size: 14.0
+text.color: xkcd:black
+text.antialiased: True
+
+mathtext.fontset: custom
+mathtext.rm: Cambria Math
+mathtext.cal: Cambria Math
+mathtext.it: Cambria:italic
+mathtext.bf: Cambria:bold
+mathtext.sf: Berkeley Mono Variable
+mathtext.tt: Berkeley Mono Variable
+mathtext.default: sf
+
+# AXES
+axes.titlesize: 14
+axes.labelsize: 14
+axes.edgecolor: xkcd:black #Normalized RGB colours (from 0 to 1 instead of 0 to 255)
+axes.labelcolor: xkcd:black
+axes.linewidth: 0.6
+axes.spines.top: True
+axes.spines.right: True
+axes.spines.bottom: True
+axes.spines.left: True
+axes.formatter.use_mathtext: True
+axes.unicode_minus: True
+axes.labelpad: 20
+
+xaxis.labellocation: center
+
+# GRID
+axes.grid: False
+grid.alpha: 0.6
+grid.linestyle: dotted
+grid.linewidth: 0.7
+axes.grid.axis: both
+axes.grid.which: both
+
+# axes3d.grid: True
+
+# LINES
+# axes.prop_cycle: cycler('color', [ '0046b8', '2464c9', '4d87e3', '7899cf', '8ea1bf']) #hex colours
+lines.linewidth: 1.4
+lines.markeredgewidth: 0.0
+lines.solid_capstyle: round
+lines.solid_joinstyle: round
+lines.dash_capstyle: round
+lines.dash_joinstyle: round
+
+# SCATTER PLOT
+scatter.marker: .
+
+# TICKS
+xtick.labelsize: 14
+xtick.color: xkcd:black
+xtick.direction: in
+ytick.labelsize: 14
+ytick.color: xkcd:black
+ytick.direction: in
+
+
+# LEGEND
+legend.frameon: False
+legend.facecolor:  None
+# legend.fontsize: 9
+# legend.borderaxespad: 2
+
+# FIGURE OUTPUT
+figure.figsize: 7, 7
+figure.dpi: 110
+savefig.dpi: 500
+

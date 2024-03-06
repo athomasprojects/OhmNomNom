@@ -7,9 +7,9 @@ let () =
   let path = "data/" in
   let file = "2114_post_annealing_p360_r2c1_dark.txt" in
   let model = Model.make ~path ~file 0.36 "cm^2" in
-  let () = Plot.make_plot model in
   Fmt.pr "@.==== Model:@.";
   Fmt.pr "@.%a@." Model.pp model;
+  Plot.create model;
   (* let data = Data.read_data path fname in *)
   (* let area = Area.init (1.e-8, "cm^2") in *)
   (* Fmt.pr "@.==== Data:"; *)

@@ -78,3 +78,6 @@ let current_density (area : Area.t) data =
   in
   Array.map data.current ~f:(fun i -> i /. area_value)
 ;;
+
+let string_of_voltage prefix = Prefix.string_of_prefix prefix ^ "V"
+let string_of_current prefix = Prefix.string_of_prefix prefix ^ "A"
