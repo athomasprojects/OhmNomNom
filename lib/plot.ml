@@ -58,12 +58,34 @@ module LinearJV = struct
     let _marker = set_marker_style lbl in
     let linestyle = set_linestyle lbl in
     let label = set_plot_label lbl in
+    let labels = label |> Array.create ~len:1 in
     let title = Label.to_string lbl in
     let x_lbl = Data.string_of_voltage data.v_units in
     let y_lbl = Data.string_of_current data.i_units in
     Ax.set_title ax title;
     Ax.set_xlabel ax x_lbl;
     Ax.set_ylabel ax y_lbl;
+    Ax.legend ax ~labels ();
+    Ax.plot ax ~label ~linestyle ~xs ys
+  ;;
+
+  let semilog ax m =
+    let Model.{ data; lbl; area; file; path } = m in
+    let _size = 50 in
+    let xs = Array.map data.voltage ~f:Float.log10 in
+    let ys = data.current in
+    (* Set plot style *)
+    let _marker = set_marker_style lbl in
+    let linestyle = set_linestyle lbl in
+    let label = set_plot_label lbl in
+    let labels = label |> Array.create ~len:1 in
+    let title = Label.to_string lbl in
+    let x_lbl = Data.string_of_voltage data.v_units in
+    let y_lbl = Data.string_of_current data.i_units in
+    Ax.set_title ax title;
+    Ax.set_xlabel ax x_lbl;
+    Ax.set_ylabel ax y_lbl;
+    Ax.legend ax ~labels ();
     Ax.plot ax ~label ~linestyle ~xs ys
   ;;
 end
@@ -71,8 +93,10 @@ end
 (* let create ~group (m : Model.t) = *)
 let create (m : Model.t) =
   let figsize = 3.5, 3.5 in
-  let fig, ax = Fig.create_with_ax ~figsize () in
-  LinearJV.plot ax m;
-  Fig.suptitle fig "YO THIS IS A FIGURE";
+  let fig = Fig.create ~figsize () in
+  let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
+  (* LinearJV.plot ax m; *)
+  LinearJV.semilog ax m;
+  (* Fig.suptitle fig "YO THIS IS A FIGURE"; *)
   Mpl.show ()
 ;;
