@@ -28,8 +28,8 @@ type plot_type =
 
 let set_marker_style (lbl : Label.t) =
   match lbl.annealed with
-  | true -> 'o'
-  | false -> 's'
+  | true -> 'h'
+  | false -> 'o'
 ;;
 
 let set_linestyle (lbl : Label.t) =
@@ -53,8 +53,10 @@ let init scale m =
     match scale with
     | `Linear -> y
     | `Semilog ->
-      Array.map xs ~f:(fun x ->
-        if Float.(x <= 0.0) then Float.log10 @@ Float.abs x else Float.log10 x)
+      Array.map y ~f:(fun i ->
+        if Float.is_negative i
+        then Float.log10 @@ Float.abs i
+        else Float.log10 i)
   in
   let marker = set_marker_style lbl in
   let linestyle = set_linestyle lbl in
@@ -68,15 +70,15 @@ let init scale m =
 
 module LinearJV = struct
   let () = Mpl.style_use "plotting.mplstyle"
-  let marker_size = 50
+  let marker_size = 30.
 
   let plot ax m scale =
     let { marker; label; color; linestyle; xs; ys; x_lbl; y_lbl; title } =
       init scale m
     in
-    let labels = [| label; "oi" |] in
-    Ax.plot ax ~label ~linestyle ~xs ys;
-    Ax.plot ax ~label:"" ~linestyle ~xs (Array.map ys ~f:Float.neg);
+    let labels = [| label |] in
+    (* Ax.plot ax ~label ~linestyle ~xs ys; *)
+    Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
     Ax.set_title ax title;
     Ax.set_xlabel ax x_lbl;
     Ax.set_ylabel ax y_lbl;
