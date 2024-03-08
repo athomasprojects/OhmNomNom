@@ -1,14 +1,14 @@
 open Core
 open Matplotlib
 
-(* type theme = *)
-(*   { marker : char *)
-(*   ; label : string *)
-(*   ; color : Matplotlib.Mpl.Color.t *)
-(*   ; linewidth : float *)
-(*   ; linestyle : Matplotlib.Mpl.Linestyle.t *)
-(*   ; style : string *)
-(*   } *)
+type theme =
+  { marker : char
+  ; label : string
+  ; color : Matplotlib.Mpl.Color.t
+  ; linewidth : float
+  ; linestyle : Matplotlib.Mpl.Linestyle.t
+  ; style : string
+  }
 
 type group =
   | All
@@ -44,10 +44,6 @@ let set_plot_label (lbl : Label.t) =
     [ Label.string_of_pitch lbl.pitch; Label.string_of_pos lbl.pos ]
 ;;
 
-module type PLOTDATA = sig
-  val plot : Ax.t -> Model.t -> unit
-end
-
 module LinearJV = struct
   let plot ax m =
     let Model.{ data; lbl; area; file; path } = m in
@@ -60,8 +56,8 @@ module LinearJV = struct
     let label = set_plot_label lbl in
     let labels = label |> Array.create ~len:1 in
     let title = Label.to_string lbl in
-    let x_lbl = Data.string_of_voltage data.v_units in
-    let y_lbl = Data.string_of_current data.i_units in
+    let x_lbl = Data.string_of_volts data.v_units in
+    let y_lbl = Data.string_of_amps data.i_units in
     Ax.set_title ax title;
     Ax.set_xlabel ax x_lbl;
     Ax.set_ylabel ax y_lbl;
@@ -80,8 +76,8 @@ module LinearJV = struct
     let label = set_plot_label lbl in
     let labels = label |> Array.create ~len:1 in
     let title = Label.to_string lbl in
-    let x_lbl = Data.string_of_voltage data.v_units in
-    let y_lbl = Data.string_of_current data.i_units in
+    let x_lbl = Data.string_of_volts data.v_units in
+    let y_lbl = Data.string_of_amps data.i_units in
     Ax.set_title ax title;
     Ax.set_xlabel ax x_lbl;
     Ax.set_ylabel ax y_lbl;
@@ -90,7 +86,6 @@ module LinearJV = struct
   ;;
 end
 
-(* let create ~group (m : Model.t) = *)
 let create (m : Model.t) =
   let figsize = 3.5, 3.5 in
   let fig = Fig.create ~figsize () in

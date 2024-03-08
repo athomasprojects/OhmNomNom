@@ -9,7 +9,7 @@ type t =
   }
 [@@deriving show, eq]
 
-let make f =
+let make filename =
   let open Parser.A in
   let is_illum = function
     | "dark" -> false
@@ -34,7 +34,7 @@ let make f =
     in
     return { id; annealed; pitch; pos; illum }
   in
-  parse_string ~consume:Prefix parser f |> Result.ok_or_failwith
+  parse_string ~consume:Prefix parser filename |> Result.ok_or_failwith
 ;;
 
 let to_string lbl =

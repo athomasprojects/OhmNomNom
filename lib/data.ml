@@ -1,40 +1,50 @@
 open Core
 
 type t =
-  { current : float array
-  ; voltage : float array
+  { mutable current : float array
+  ; mutable voltage : float array
   ; v_units : Prefix.t
   ; i_units : Prefix.t
   }
 [@@deriving show, eq]
 
-let voltage_prefix =
-  let open Parser.A in
-  char '('
-  *> take_till (fun ch ->
-    match ch with
-    | 'V' -> true
-    | _ -> false)
-  >>| fun t ->
-  match Prefix.prefix_of_string_opt t with
-  | Some p -> p
-  | None -> failwith "Invalid voltage unit prefix."
+let voltage t = t.voltage
+let current t = t.current
+
+let units_of_data quantity t =
+  match quantity with
+  | `Voltage -> t.v_units
+  | `Current -> t.i_units
 ;;
 
-let current_prefix =
-  let open Parser.A in
-  char '('
-  *> take_till (fun ch ->
-    match ch with
-    | 'A' -> true
-    | _ -> false)
-  >>| fun t ->
-  match Prefix.prefix_of_string_opt t with
-  | Some p -> p
-  | None -> failwith "Invalid current unit prefix."
-;;
+let string_of_volts prefix = Prefix.string_of_prefix prefix ^ "V"
+let string_of_amps prefix = Prefix.string_of_prefix prefix ^ "A"
 
 let read_units str =
+  let voltage_prefix =
+    let open Parser.A in
+    char '('
+    *> take_till (fun ch ->
+      match ch with
+      | 'V' -> true
+      | _ -> false)
+    >>| fun t ->
+    match Prefix.prefix_of_string_opt t with
+    | Some p -> p
+    | None -> failwith "Invalid voltage unit prefix."
+  in
+  let current_prefix =
+    let open Parser.A in
+    char '('
+    *> take_till (fun ch ->
+      match ch with
+      | 'A' -> true
+      | _ -> false)
+    >>| fun t ->
+    match Prefix.prefix_of_string_opt t with
+    | Some p -> p
+    | None -> failwith "Invalid current unit prefix."
+  in
   let open Parser.A in
   let parser =
     let open Parser.A in
@@ -57,16 +67,18 @@ let read_measurements str =
   parse_string ~consume:Prefix parser str |> Result.ok_or_failwith
 ;;
 
-let read_data path file =
-  let lines = Parser.read_lines (path ^ file) in
+let read_data path filename =
+  let () = assert (Stdlib.Sys.is_directory path) in
+  let () = assert (Stdlib.Sys.file_exists (path ^ "/" ^ filename)) in
   let units, data =
+    let lines = Util.read_lines (path ^ filename) in
     match lines with
-    | units :: data -> units, data
+    | units :: data when not (List.is_empty data) -> units, data
     | _ -> failwith "Invalid data file"
   in
   let v_units, i_units = read_units units in
   let current, voltage =
-    Array.of_list data |> Array.map ~f:read_measurements |> Array.unzip
+    List.map data ~f:read_measurements |> Array.of_list |> Array.unzip
   in
   { current; voltage; v_units; i_units }
 ;;
@@ -78,6 +90,3 @@ let current_density (area : Area.t) data =
   in
   Array.map data.current ~f:(fun i -> i /. area_value)
 ;;
-
-let string_of_voltage prefix = Prefix.string_of_prefix prefix ^ "V"
-let string_of_current prefix = Prefix.string_of_prefix prefix ^ "A"
