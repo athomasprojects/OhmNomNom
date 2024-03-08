@@ -41,10 +41,10 @@ let to_string lbl =
   String.concat
     ~sep:" "
     [ Int.to_string lbl.id
-    ; "pitch: " ^ Int.to_string lbl.pitch ^ " nm - "
+    ; "pitch: " ^ Int.to_string lbl.pitch ^ " nm"
     ; "("
       ^ Int.to_string (fst lbl.pos)
-      ^ ", "
+      ^ ","
       ^ Int.to_string (snd lbl.pos)
       ^ ")"
     ]

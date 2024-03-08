@@ -11,8 +11,8 @@ type t =
 let voltage t = t.voltage
 let current t = t.current
 
-let units_of_data quantity t =
-  match quantity with
+let units_of_data qty t =
+  match qty with
   | `Voltage -> t.v_units
   | `Current -> t.i_units
 ;;

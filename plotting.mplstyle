@@ -33,12 +33,12 @@ axes.labelpad: 20
 xaxis.labellocation: center
 
 # GRID
-axes.grid: False
-grid.alpha: 0.6
-grid.linestyle: dotted
-grid.linewidth: 0.7
-axes.grid.axis: both
-axes.grid.which: both
+# axes.grid: True
+# grid.alpha: 0.6
+# grid.linestyle: dotted
+# grid.linewidth: 0.7
+# axes.grid.axis: both
+# axes.grid.which: both
 
 # axes3d.grid: True
 

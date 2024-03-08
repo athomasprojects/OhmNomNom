@@ -22,5 +22,6 @@ let () =
         let pos = Label.string_of_pos m.lbl.pos in
         Fmt.pr "%d: %s@." (succ idx) pos))
   in
+  Plot.create model `Semilog;
   ()
 ;;
