@@ -1,7 +1,7 @@
 type t
 
 val read_data : string -> string -> t
-(** [read_data reads the data from the [file] located in the [path] to the directory. *)
+(** [read_data path file] reads the data from the [file] located at [path]. *)
 
 val voltage : t -> float array
 (** [voltage] returns the array of bias voltage data points in volts. *)

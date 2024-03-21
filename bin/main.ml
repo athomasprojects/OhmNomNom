@@ -2,6 +2,7 @@ open Core
 module Label = Ohmnom.Label
 module Model = Ohmnom.Model
 module Plot = Ohmnom.Plot
+module App = Ohmnom.App
 
 let () =
   let path = "data/" in
@@ -22,6 +23,12 @@ let () =
         let pos = Label.string_of_pos m.lbl.pos in
         Fmt.pr "%d: %s@." (succ idx) pos))
   in
-  Plot.create models.(6) `Semilog;
+  let _ =
+    let m = models.(6) in
+    let fig = Plot.create m `Semilog in
+    Plot.save_fig fig m
+    (* Plot.show () *)
+  in
   ()
 ;;
+(* App.run fig (); *)

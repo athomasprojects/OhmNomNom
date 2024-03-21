@@ -85,7 +85,7 @@ let read_data path filename =
 
 let current_density (area : Area.t) data =
   let area_value =
-    let magnitude = Prefix.value_of_prefix area.prefix |> Owl.Maths.sqr in
+    let magnitude = Prefix.value_of_prefix area.prefix |> Float.square in
     magnitude *. area.value
   in
   Array.map data.current ~f:(fun i -> i /. area_value)

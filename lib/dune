@@ -1,5 +1,5 @@
 (library
  (name ohmnom)
- (libraries core fmt angstrom bogue owl matplotlib)
+ (libraries core fmt angstrom matplotlib lablgtk3 pyml)
  (preprocess
   (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq ppx_sexp_conv)))

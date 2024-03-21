@@ -26,7 +26,7 @@ let compare_by_pitch m1 m2 =
 
 let make_exn ~path ~file area_value area_unit =
   let () = assert (Sys.is_directory path) in
-  let () = assert (Sys.file_exists (path ^ "/" ^ file)) in
+  let () = assert (Sys.file_exists (path ^ file)) in
   let lbl = Label.make file in
   let data = Data.read_data path file in
   let area = Area.init (area_value, area_unit) in
@@ -41,7 +41,7 @@ let make ~path ~file area_value area_unit =
     { data; lbl; area; file; path }
   in
   let valid_file =
-    let cond = Sys.is_directory path && Sys.file_exists (path ^ "/" ^ file) in
+    let cond = Sys.is_directory path && Sys.file_exists (path ^ file) in
     Option.some_if cond file
   in
   Option.bind valid_file ~f:(fun _ -> Some (make_label file))
@@ -98,4 +98,18 @@ let group_by ~group models =
         |> List.of_array)
   in
   List.of_array groups
+;;
+
+let set_file_ext m ~suffix =
+  let { file } = m in
+  if String.is_suffix file ~suffix then file else file ^ "." ^ suffix
+;;
+
+let strip_file_ext m ~suffix =
+  String.chop_suffix_if_exists m.file ~suffix:("." ^ suffix)
+;;
+
+let replace_file_ext m ~old ~ext =
+  let prefix = strip_file_ext m ~suffix:old in
+  prefix ^ "." ^ ext
 ;;

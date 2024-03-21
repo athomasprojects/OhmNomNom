@@ -1,7 +1,8 @@
 open Core
 open Matplotlib
+module Sys = Stdlib.Sys
 
-type t =
+type styling =
   { marker : char
   ; label : string
   ; color : Matplotlib.Mpl.Color.t option
@@ -69,28 +70,53 @@ let init scale m =
 ;;
 
 module LinearJV = struct
-  let () = Mpl.style_use "plotting.mplstyle"
+  let () =
+    Mpl.set_backend (Other "Gtk3Agg");
+    Mpl.style_use "ohm.mplstyle"
+  ;;
+
   let marker_size = 30.
 
-  let plot ax m scale =
+  let plot ax styling =
     let { marker; label; color; linestyle; xs; ys; x_lbl; y_lbl; title } =
-      init scale m
+      styling
     in
     let labels = [| label |] in
     (* Ax.plot ax ~label ~linestyle ~xs ys; *)
     Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
     Ax.set_title ax title;
+    Ax.legend ax ~labels ();
     Ax.set_xlabel ax x_lbl;
-    Ax.set_ylabel ax y_lbl;
-    Ax.legend ax ~labels ()
+    Ax.set_ylabel ax y_lbl
   ;;
 end
 
+let show () = Mpl.show ()
+
 let create (m : Model.t) scale =
-  let figsize = 3.5, 3.5 in
-  let fig = Fig.create ~figsize () in
+  (* let fg_sz = 4. in *)
+  (* let figsize = fg_sz, fg_sz in *)
+  let fig = Fig.create () in
+  (* ~figsize () in *)
   let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
-  LinearJV.plot ax m scale;
+  let styling = init scale m in
+  LinearJV.plot ax styling;
   (* Fig.suptitle fig "YO THIS IS A FIGURE"; *)
-  Mpl.show ()
+  fig
+;;
+
+let save_fig fig (m : Model.t) =
+  let path = "/tmp/ohm_figs/" in
+  let _ =
+    match Sys.is_directory path with
+    | true -> ()
+    | false -> Sys.mkdir path 0o755
+  in
+  let file =
+    let f = Model.replace_file_ext m ~old:"txt" ~ext:"png" in
+    path ^ f
+  in
+  Mpl.savefig file;
+  let data = Mpl.plot_data `png in
+  Stdio.Out_channel.write_all file ~data
 ;;
