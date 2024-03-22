@@ -3,7 +3,7 @@ font.family: Berkeley Mono Variable
 font.sans-serif: Berkeley Mono Variable
 font.style: normal
 font.weight: 400
-font.size: 12.0
+font.size: 14.0
 text.color: xkcd:black
 text.antialiased: True
 
@@ -17,8 +17,8 @@ mathtext.tt: Berkeley Mono Variable
 mathtext.default: sf
 
 # AXES
-axes.titlesize: 12
-axes.labelsize: 12
+axes.titlesize: 14
+axes.labelsize: 14
 axes.edgecolor: xkcd:black #Normalized RGB colours (from 0 to 1 instead of 0 to 255)
 axes.labelcolor: xkcd:black
 axes.linewidth: 0.6
@@ -55,10 +55,10 @@ lines.dash_joinstyle: round
 scatter.marker: .
 
 # TICKS
-xtick.labelsize: 12
+xtick.labelsize: 14
 xtick.color: xkcd:black
 xtick.direction: in
-ytick.labelsize: 12
+ytick.labelsize: 14
 ytick.color: xkcd:black
 ytick.direction: in
 
@@ -67,7 +67,7 @@ ytick.direction: in
 legend.frameon: False
 legend.facecolor:  None
 legend.fontsize: 13
-# legend.fontsize: 12
+# legend.fontsize: 14
 # legend.borderaxespad: 2
 
 # FIGURE OUTPUT

@@ -1,6 +1,5 @@
 open Core
 open Matplotlib
-module Sys = Stdlib.Sys
 
 type styling =
   { marker : char
@@ -108,9 +107,10 @@ let create (m : Model.t) scale =
 let save_fig fig (m : Model.t) =
   let path = "/tmp/ohm_figs/" in
   let _ =
-    match Sys.is_directory path with
-    | true -> ()
-    | false -> Sys.mkdir path 0o755
+    try Stdlib.Sys.is_directory path with
+    | Sys_error _ ->
+      Stdlib.Sys.mkdir path 0o755;
+      true
   in
   let file =
     let f = Model.replace_file_ext m ~old:"txt" ~ext:"png" in
