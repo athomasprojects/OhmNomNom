@@ -14,14 +14,15 @@ let () =
   Fmt.pr "@.@.==== Sorted Models:@.";
   Model.sort_models models;
   Array.iter models ~f:(fun m -> Fmt.pr "@.%a@." Model.pp m);
-  let group = `Row in
+  let group = `Pitch in
   Fmt.pr "@.==== Group By %s:@." (Model.string_of_group group);
   let _ =
     let groups = Model.group_by group models in
     List.iteri groups ~f:(fun idx group ->
       List.iter group ~f:(fun m ->
         let pos = Label.string_of_pos m.lbl.pos in
-        Fmt.pr "%d: %s@." (succ idx) pos))
+        Fmt.pr "%d: %s@." m.lbl.pitch pos))
+    (* Fmt.pr "%d: %s@." (succ idx) pos)) *)
   in
   let _ =
     let m = models.(3) in

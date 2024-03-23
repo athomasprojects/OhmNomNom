@@ -66,6 +66,7 @@ let sort_models models = Array.sort models ~compare:compare_by_pitch
 let string_of_group = function
   | `Row -> "Row"
   | `Col -> "Column"
+  | `Pitch -> "Pitch"
 ;;
 
 let group_by group models =
@@ -95,6 +96,17 @@ let group_by group models =
         Array.filter models ~f:(fun m ->
           let col = snd m.lbl.pos in
           col = succ idx)
+        |> List.of_array)
+    | `Pitch ->
+      let pitches =
+        List.of_array models
+        |> List.map ~f:(fun m -> m.lbl.pitch)
+        |> List.dedup_and_sort ~compare:(fun p1 p2 -> compare p1 p2)
+        |> Array.of_list
+      in
+      Array.create ~len:(Array.length pitches) []
+      |> Array.mapi ~f:(fun idx _ ->
+        Array.filter models ~f:(fun m -> pitches.(idx) = m.lbl.pitch)
         |> List.of_array)
   in
   List.of_array groups
