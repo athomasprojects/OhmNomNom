@@ -29,6 +29,5 @@ let () =
     Plot.save_fig fig m
     (* Plot.show () *)
   in
-  ()
+  App.run ()
 ;;
-(* App.run fig (); *)
