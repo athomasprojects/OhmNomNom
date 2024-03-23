@@ -84,7 +84,7 @@ module LinearJV = struct
     (* Ax.plot ax ~label ~linestyle ~xs ys; *)
     Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
     Ax.set_title ax title;
-    Ax.legend ax ~labels ();
+    Ax.legend ax ~labels ~loc:Best ();
     Ax.set_xlabel ax x_lbl;
     Ax.set_ylabel ax y_lbl
   ;;

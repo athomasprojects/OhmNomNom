@@ -172,6 +172,12 @@ let exponent_of_prefix = function
   | Quetta -> 30
 ;;
 
+let is_micro = function
+  | Micro -> true
+  | _ -> false
+;;
+
+let format_micro prefix = Option.some_if (is_micro prefix) "μ"
 let string_prefix_table = StrMap.of_alist_exn str_prefix_alist
 let value_prefix_table = FloatMap.of_alist_exn float_prefix_alist
 let prefix_of_string_opt s = Map.find string_prefix_table s

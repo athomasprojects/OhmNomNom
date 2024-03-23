@@ -5,7 +5,7 @@ module Plot = Ohmnom.Plot
 module App = Ohmnom.App
 
 let () =
-  let path = "data/" in
+  let path = "test_data/" in
   (* let file = "2114_post_annealing_p360_r2c2_dark.txt" in *)
   (* let model = Model.make ~path ~file 0.36 "cm^2" |> Option.value_exn in *)
   (* Fmt.pr "@.==== Model:@."; *)

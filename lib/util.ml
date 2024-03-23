@@ -26,3 +26,8 @@ let is_valid_denominator x ~f ~err =
   let open Core in
   is_valid x ~f ~pred:Float.(x > 0.) ~err:(err ^ " must be strictly positive")
 ;;
+
+let range_seq start stop =
+  let next i = if i > stop then None else Some (i, i + 1) in
+  Seq.unfold next start
+;;

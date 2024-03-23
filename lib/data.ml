@@ -17,8 +17,15 @@ let units_of_data qty t =
   | `Current -> t.i_units
 ;;
 
-let string_of_volts prefix = Prefix.string_of_prefix prefix ^ "V"
-let string_of_amps prefix = Prefix.string_of_prefix prefix ^ "A"
+let string_of_unit prefix unit =
+  let p =
+    if Prefix.is_micro prefix then "μ" else Prefix.string_of_prefix prefix
+  in
+  p ^ unit
+;;
+
+let string_of_volts prefix = string_of_unit prefix "V"
+let string_of_amps prefix = string_of_unit prefix "A"
 
 let read_units str =
   let voltage_prefix =

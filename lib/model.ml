@@ -86,7 +86,7 @@ let group_by ~group models =
       |> Array.mapi ~f:(fun idx _ ->
         Array.filter models ~f:(fun m ->
           let row = fst m.lbl.pos in
-          row = idx + 1)
+          row = succ idx)
         |> List.of_array)
     | `Col ->
       let chunks = snd max_pos in
@@ -94,7 +94,7 @@ let group_by ~group models =
       |> Array.mapi ~f:(fun idx _ ->
         Array.filter models ~f:(fun m ->
           let col = snd m.lbl.pos in
-          col = idx + 1)
+          col = succ idx)
         |> List.of_array)
   in
   List.of_array groups
