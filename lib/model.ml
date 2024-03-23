@@ -68,7 +68,7 @@ let string_of_group = function
   | `Col -> "Column"
 ;;
 
-let group_by ~group models =
+let group_by group models =
   if not (Array.is_sorted models ~compare:compare_by_pitch)
   then sort_models models
   else ();

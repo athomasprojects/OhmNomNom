@@ -104,7 +104,7 @@ let create (m : Model.t) scale =
   fig
 ;;
 
-let save_fig fig (m : Model.t) =
+let save_fig fig (m : Model.t) scale =
   let path = "/tmp/ohm_figs/" in
   let _ =
     try Stdlib.Sys.is_directory path with
@@ -113,7 +113,12 @@ let save_fig fig (m : Model.t) =
       true
   in
   let file =
-    let f = Model.replace_file_ext m ~old:"txt" ~ext:"png" in
+    let s =
+      match scale with
+      | `Linear -> "linear_"
+      | `Semilog -> "semilog_"
+    in
+    let f = s ^ Model.replace_file_ext m ~old:"txt" ~ext:"png" in
     path ^ f
   in
   Mpl.savefig file;

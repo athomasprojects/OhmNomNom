@@ -98,9 +98,7 @@ let main () =
                     ~expand:`BOTH
                     (GMisc.image
                        ~file:
-                         "/tmp/ohm_figs/2114_post_annealing_p360_r3c1_dark.png"
-                       (* ~width:2 *)
-                       (* ~height:2 *)
+                         "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r2c1_dark.png"
                        ())
                       #coerce
                 in

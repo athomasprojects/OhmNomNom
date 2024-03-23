@@ -17,16 +17,18 @@ let () =
   let group = `Row in
   Fmt.pr "@.==== Group By %s:@." (Model.string_of_group group);
   let _ =
-    let groups = Model.group_by ~group models in
+    let groups = Model.group_by group models in
     List.iteri groups ~f:(fun idx group ->
       List.iter group ~f:(fun m ->
         let pos = Label.string_of_pos m.lbl.pos in
         Fmt.pr "%d: %s@." (succ idx) pos))
   in
   let _ =
-    let m = models.(6) in
-    let fig = Plot.create m `Semilog in
-    Plot.save_fig fig m
+    let m = models.(3) in
+    let semi = Plot.create m `Semilog in
+    (* let linear = Plot.create m `Linear in *)
+    Plot.save_fig semi m `Semilog
+    (* Plot.save_fig linear m `Linear *)
     (* Plot.show () *)
   in
   App.run ()
