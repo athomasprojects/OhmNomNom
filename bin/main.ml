@@ -11,25 +11,18 @@ let () =
   (* Fmt.pr "@.==== Model:@."; *)
   (* Fmt.pr "@.%a@." Model.pp model; *)
   let models = Model.make_models ~path 0.36 "cm^2" in
-  Fmt.pr "@.@.==== Sorted Models:@.";
   Model.sort_models models;
-  Array.iter models ~f:(fun m -> Fmt.pr "@.%a@." Model.pp m);
-  let group = `Pitch in
-  Fmt.pr "@.==== Group By %s:@." (Model.string_of_group group);
+  Model.print_sorted_model_array models;
+  Model.print_grouping `Pitch models;
   let _ =
-    let groups = Model.group_by group models in
-    List.iteri groups ~f:(fun idx group ->
-      List.iter group ~f:(fun m ->
-        let pos = Label.string_of_pos m.lbl.pos in
-        Fmt.pr "%d: %s@." m.lbl.pitch pos))
-    (* Fmt.pr "%d: %s@." (succ idx) pos)) *)
+    let m = models.(3) in
+    let _semi = Plot.create `Semilog m in
+    Plot.save_fig `Semilog m
   in
   let _ =
     let m = models.(3) in
-    let semi = Plot.create m `Semilog in
-    (* let linear = Plot.create m `Linear in *)
-    Plot.save_fig semi m `Semilog
-    (* Plot.save_fig linear m `Linear *)
+    let _linear = Plot.create `Linear m in
+    Plot.save_fig `Linear m
     (* Plot.show () *)
   in
   App.run ()

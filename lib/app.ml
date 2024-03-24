@@ -1,6 +1,5 @@
 let dir = ref ""
-let nrows = 2
-let ncols = 4
+let area = ref ""
 
 type tab =
   | Home
@@ -19,7 +18,7 @@ let print_dir state =
   | `update -> Fmt.pr "==== updating dir: '%s'@." !dir
 ;;
 
-let check_entry entry =
+let check_entry entry area_entry =
   let path = entry#text in
   let is_dir =
     try Stdlib.Sys.is_directory path with
@@ -27,25 +26,35 @@ let check_entry entry =
       Fmt.pr "%s is not a directory!@." path;
       false
   in
-  if is_dir then Fmt.pr "Run button clicked: You entered: %s@." path;
+  if is_dir then Fmt.pr "Run button clicked: you entered: %s@." path;
   dir := path;
-  print_dir `update;
+  area := area_entry#text |> Core.String.strip;
+  Fmt.pr "Area: %s@." !area;
+  (* print_dir `update; *)
   flush stdout;
   is_dir
 ;;
 
-let start_button_clicked entry () =
-  let _ = check_entry entry in
+let start_button_clicked entry area_entry () =
+  let _ = check_entry entry area_entry in
   ()
 ;;
 
-let main () =
+let create_ui () =
   let open Core in
   let _ = GMain.init () in
-  let window = GWindow.window ~title:"OhmNomNom" ~border_width:10 () in
+  let window =
+    GWindow.window ~title:"OhmNomNom" ~border_width:10 () ~resizable:true
+  in
   let _ = window#connect#destroy ~callback:GMain.quit in
   let vbox = GPack.vbox ~spacing:6 ~packing:window#add () in
-  let hbox =
+  let data_hbox =
+    GPack.hbox
+      ~spacing:6
+      ~packing:(vbox#pack ~expand:false ~fill:false ~padding:0)
+      ()
+  in
+  let area_hbox =
     GPack.hbox
       ~spacing:6
       ~packing:(vbox#pack ~expand:false ~fill:false ~padding:0)
@@ -54,13 +63,29 @@ let main () =
   let start_button =
     GButton.button
       ~label:"Run"
-      ~packing:(hbox#pack ~expand:false ~fill:false ~padding:0)
+      ~packing:(data_hbox#pack ~expand:false ~fill:false ~padding:0)
       ()
   in
   let entry =
-    GEdit.entry ~packing:(hbox#pack ~expand:true ~fill:true ~padding:0) ()
+    GEdit.entry
+      ~text:"/path/to/data/" (* ~width:1200 *)
+      ~packing:(data_hbox#pack ~expand:true ~fill:true ~padding:0)
+      ()
   in
-  entry#set_text "path/to/data/";
+  let _ =
+    GMisc.label
+      ~text:"Area:"
+      ~packing:(area_hbox#pack ~expand:false ~fill:false ~padding:3)
+      ()
+  in
+  let area_entry =
+    GEdit.entry
+      ~text:"0.36 cm^2"
+      ~width:250
+      ~packing:(area_hbox#pack ~expand:false ~fill:true ~padding:0)
+      ()
+  in
+  (* entry#set_text "path/to/data/"; *)
   let notebook =
     GPack.notebook
       ~scrollable:true
@@ -73,6 +98,8 @@ let main () =
     let page = GPack.box `HORIZONTAL ~border_width:10 () in
     let _ = notebook#append_page ~tab_label:lbl#coerce page#coerce in
     let () =
+      let nrows = 2 in
+      let ncols = 4 in
       Fmt.pr "Adding %s page...@." tab_str;
       match tab with
       | Home ->
@@ -96,6 +123,7 @@ let main () =
                     ~left:j
                     ~top:i
                     ~expand:`BOTH
+                    ~shrink:`BOTH
                     (GMisc.image
                        ~file:
                          "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r2c1_dark.png"
@@ -112,17 +140,18 @@ let main () =
         let file = "assets/admiral.jpg" in
         page#add (GMisc.image ~file ())#coerce
       | Logs -> page#add (GMisc.label ~text:"Logs go here" ())#coerce
-      | _ -> ()
     in
     ());
   let _ =
     start_button#connect#clicked ~callback:(fun () ->
-      start_button_clicked entry ())
+      start_button_clicked entry area_entry ())
   in
-  (* window#set_default_width 300; *)
+  window#set_default_size ~width:300 ~height:200;
   window#show ();
   GMain.main ()
 ;;
+
+let main () = create_ui ()
 
 let run () =
   print_dir `init;

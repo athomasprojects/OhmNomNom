@@ -113,7 +113,7 @@ let group_by group models =
 ;;
 
 let set_file_ext m ~suffix =
-  let { file } = m in
+  let { file; _ } = m in
   if String.is_suffix file ~suffix then file else file ^ "." ^ suffix
 ;;
 
@@ -124,4 +124,36 @@ let strip_file_ext m ~suffix =
 let replace_file_ext m ~old ~ext =
   let prefix = strip_file_ext m ~suffix:old in
   prefix ^ "." ^ ext
+;;
+
+let print_model_array models =
+  Array.iter models ~f:(fun m -> Fmt.pr "@.%a@." pp m)
+;;
+
+let print_model_list models =
+  List.iter models ~f:(fun m -> Fmt.pr "@.%a@." pp m)
+;;
+
+let print_sorted_model_array models =
+  Fmt.pr "@.==== Sorted Models:";
+  print_model_array models
+;;
+
+let print_sorted_model_list models =
+  Fmt.pr "@.==== Sorted Models:";
+  print_model_list models
+;;
+
+let print_grouping category models =
+  Fmt.pr "@.==== Group By %s:@." (string_of_group category);
+  group_by category models
+  |> List.iteri ~f:(fun idx group ->
+    List.iter group ~f:(fun m ->
+      let pos = Label.string_of_pos m.lbl.pos in
+      let value =
+        match category with
+        | `Row | `Col -> succ idx
+        | `Pitch -> m.lbl.pitch
+      in
+      Fmt.pr "%d: %s@." value pos))
 ;;

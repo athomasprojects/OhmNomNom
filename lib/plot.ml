@@ -46,7 +46,7 @@ let set_plot_label (lbl : Label.t) =
 ;;
 
 let init scale m =
-  let Model.{ data; lbl; area; file; path } = m in
+  let Model.{ data; lbl; _ } = m in
   let xs = Data.voltage data in
   let ys =
     let y = Data.current data in
@@ -77,9 +77,7 @@ module LinearJV = struct
   let marker_size = 30.
 
   let plot ax styling =
-    let { marker; label; color; linestyle; xs; ys; x_lbl; y_lbl; title } =
-      styling
-    in
+    let { marker; label; xs; ys; x_lbl; y_lbl; title; _ } = styling in
     let labels = [| label |] in
     (* Ax.plot ax ~label ~linestyle ~xs ys; *)
     Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
@@ -92,7 +90,7 @@ end
 
 let show () = Mpl.show ()
 
-let create (m : Model.t) scale =
+let create scale (m : Model.t) =
   (* let fg_sz = 4. in *)
   (* let figsize = fg_sz, fg_sz in *)
   let fig = Fig.create () in
@@ -104,7 +102,7 @@ let create (m : Model.t) scale =
   fig
 ;;
 
-let save_fig fig (m : Model.t) scale =
+let save_fig scale (m : Model.t) =
   let path = "/tmp/ohm_figs/" in
   let _ =
     try Stdlib.Sys.is_directory path with
