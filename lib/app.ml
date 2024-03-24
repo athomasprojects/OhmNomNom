@@ -1,6 +1,3 @@
-let dir = ref ""
-let area = ref ""
-
 type tab =
   | Home
   | Inspect
@@ -12,32 +9,84 @@ let tab_to_string = function
   | Logs -> "Logs"
 ;;
 
-let print_dir state =
-  match state with
-  | `init -> Fmt.pr "@.==== initial dir: '%s'@." !dir
-  | `update -> Fmt.pr "==== updating dir: '%s'@." !dir
+module Input : sig
+  type t
+
+  val init : dir:string -> area:string -> t
+  val dir : t -> string
+  val area : t -> string
+  val update_dir : t -> string -> unit
+  val update_area : t -> string -> unit
+  val print_dir : [< `init | `update ] -> t -> unit
+end = struct
+  type t =
+    { mutable dir : string
+    ; mutable area : string
+    }
+
+  let init ~dir ~area = { dir; area }
+  let dir t = t.dir
+  let area t = t.area
+  let update_dir t dir = t.dir <- dir
+  let update_area t area = t.area <- area
+
+  let print_dir status t =
+    match status with
+    | `init -> Fmt.pr "@.==== initial dir: '%s'@." (dir t)
+    | `update -> Fmt.pr "==== updated dir: '%s'@." (dir t)
+  ;;
+end
+
+module State = struct
+  open Core
+
+  type t =
+    { mutable data : Model.t array
+    ; mutable user_input : Input.t
+    }
+
+  let init () =
+    let user_input = Input.init ~dir:"" ~area:"" in
+    let data = [||] in
+    { data; user_input }
+  ;;
+
+  (* let path = Input.dir user_input in *)
+  (* let area_value, area_str = *)
+  (*   match String.split (Input.area user_input) ~on:' ' with *)
+  (*   | [ v; s ] -> Float.of_string v, s *)
+  (*   | _ -> assert false *)
+  (* in *)
+  (* let data = Model.make_models ~path area_value area_str in *)
+end
+
+let state = State.init ()
+
+(* let init ~path area_value area_str = *)
+(*   let models = Model.make_models ~path area_value area_str in *)
+(*   { models } *)
+(* ;; *)
+
+let update_entries data_entry area_entry =
+  Input.update_dir state.user_input (data_entry#text |> Core.String.strip);
+  Input.update_area state.user_input (area_entry#text |> Core.String.strip);
+  ()
 ;;
 
-let check_entry entry area_entry =
-  let path = entry#text in
+let start_button_clicked data_entry area_entry () =
+  update_entries data_entry area_entry;
+  let dir = Input.dir state.user_input in
+  let area = Input.area state.user_input in
   let is_dir =
-    try Stdlib.Sys.is_directory path with
+    try Stdlib.Sys.is_directory dir with
     | Sys_error _ ->
-      Fmt.pr "%s is not a directory!@." path;
+      Fmt.pr "%s is not a directory!@." dir;
       false
   in
-  if is_dir then Fmt.pr "Run button clicked: you entered: %s@." path;
-  dir := path;
-  area := area_entry#text |> Core.String.strip;
-  Fmt.pr "Area: %s@." !area;
+  if is_dir then Fmt.pr "Run button clicked: you entered: %s@." dir;
+  Fmt.pr "Area: %s@." area;
   (* print_dir `update; *)
-  flush stdout;
-  is_dir
-;;
-
-let start_button_clicked entry area_entry () =
-  let _ = check_entry entry area_entry in
-  ()
+  flush stdout
 ;;
 
 let create_ui () =
@@ -154,6 +203,6 @@ let create_ui () =
 let main () = create_ui ()
 
 let run () =
-  print_dir `init;
+  Input.print_dir `init state.user_input;
   main ()
 ;;
