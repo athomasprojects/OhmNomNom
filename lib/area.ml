@@ -9,6 +9,8 @@ type t =
   }
 [@@deriving show, eq]
 
+let string_of_unit t = Prefix.string_of_prefix t.prefix ^ "m^2"
+
 let to_string t =
   Float.to_string t.value ^ " " ^ Prefix.string_of_prefix t.prefix ^ "m^2"
 ;;

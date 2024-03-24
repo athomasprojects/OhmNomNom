@@ -51,21 +51,19 @@ module State = struct
     { data; user_input }
   ;;
 
-  (* let path = Input.dir user_input in *)
-  (* let area_value, area_str = *)
-  (*   match String.split (Input.area user_input) ~on:' ' with *)
-  (*   | [ v; s ] -> Float.of_string v, s *)
-  (*   | _ -> assert false *)
-  (* in *)
-  (* let data = Model.make_models ~path area_value area_str in *)
+  let update_data t =
+    let path = Input.dir t.user_input in
+    let area_value, area_str =
+      match String.split (Input.area t.user_input) ~on:' ' with
+      | [ v; s ] -> Float.of_string v, s
+      | _ -> assert false
+    in
+    let data = Model.make_models ~path area_value area_str in
+    { t with data }
+  ;;
 end
 
 let state = State.init ()
-
-(* let init ~path area_value area_str = *)
-(*   let models = Model.make_models ~path area_value area_str in *)
-(*   { models } *)
-(* ;; *)
 
 let update_entries data_entry area_entry =
   Input.update_dir state.user_input (data_entry#text |> Core.String.strip);
@@ -176,6 +174,7 @@ let create_ui () =
                     (GMisc.image
                        ~file:
                          "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r2c1_dark.png"
+                         (* "assets/admiral.jpg" *)
                        ())
                       #coerce
                 in

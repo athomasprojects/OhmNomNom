@@ -45,25 +45,30 @@ let set_plot_label (lbl : Label.t) =
   ^ Label.string_of_pos lbl.pos
 ;;
 
-let init scale m =
-  let Model.{ data; lbl; _ } = m in
+let init scale norm m =
+  let Model.{ data; lbl; area; _ } = m in
   let xs = Data.voltage data in
   let ys =
-    let y = Data.current data in
+    let y =
+      if norm then Data.current_density area data else Data.current data
+    in
     match scale with
     | `Linear -> y
     | `Semilog ->
-      Array.map y ~f:(fun i ->
-        if Float.is_negative i
-        then Float.log10 @@ Float.abs i
-        else Float.log10 i)
+      Array.map y ~f:(fun i -> if Float.is_negative i then Float.abs i else i)
+    (* if Float.is_negative i *)
+    (* then Float.log10 @@ Float.abs i *)
+    (* else Float.log10 i) *)
   in
   let marker = set_marker_style lbl in
   let linestyle = set_linestyle lbl in
   let label = set_plot_label lbl in
   let title = Label.to_string lbl in
   let x_lbl = Data.string_of_volts (Data.units_of_data `Voltage data) in
-  let y_lbl = Data.string_of_amps (Data.units_of_data `Current data) in
+  let y_lbl =
+    let s = Data.string_of_amps (Data.units_of_data `Current data) in
+    if norm then s ^ "/" ^ Area.string_of_unit area else s
+  in
   let color = None in
   { marker; label; color; linestyle; xs; ys; x_lbl; y_lbl; title }
 ;;
@@ -76,10 +81,15 @@ module LinearJV = struct
 
   let marker_size = 30.
 
-  let plot ax styling =
+  let plot ax styling scale =
     let { marker; label; xs; ys; x_lbl; y_lbl; title; _ } = styling in
     let labels = [| label |] in
     (* Ax.plot ax ~label ~linestyle ~xs ys; *)
+    let _ =
+      match scale with
+      | `Linear -> ()
+      | `Semilog -> Pyplot.semilogy ~label ~linestyle:(Other "") ~xs ys
+    in
     Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
     Ax.set_title ax title;
     Ax.legend ax ~labels ~loc:Best ();
@@ -90,14 +100,14 @@ end
 
 let show () = Mpl.show ()
 
-let create scale (m : Model.t) =
+let create scale ~norm m =
   (* let fg_sz = 4. in *)
   (* let figsize = fg_sz, fg_sz in *)
   let fig = Fig.create () in
   (* ~figsize () in *)
   let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
-  let styling = init scale m in
-  LinearJV.plot ax styling;
+  let styling = init scale norm m in
+  LinearJV.plot ax styling scale;
   (* Fig.suptitle fig "YO THIS IS A FIGURE"; *)
   fig
 ;;

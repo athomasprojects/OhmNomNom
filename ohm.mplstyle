@@ -28,7 +28,7 @@ axes.spines.bottom: True
 axes.spines.left: True
 axes.formatter.use_mathtext: True
 axes.unicode_minus: True
-axes.labelpad: 3
+axes.labelpad: 5
 # axes.labelpad: 20
 
 xaxis.labellocation: center
@@ -78,6 +78,7 @@ legend.markerscale: 0.8
 # legend.borderaxespad: 2
 
 # FIGURE OUTPUT
+figure.autolayout: True
 figure.figsize: 3.5, 3.5
 figure.dpi: 110
 savefig.dpi: 175
