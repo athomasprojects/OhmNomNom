@@ -19,12 +19,11 @@ type group =
   | Pitch
 [@@deriving show, eq, sexp]
 
-type plot_type =
-  [ `Linear of group
-  | `Semilog of group
-  | `Scatter of group
-  ]
-[@@deriving show, eq, sexp]
+let string_of_group = function
+  | All -> "All"
+  | Single -> "Single"
+  | Pitch -> "Pitch"
+;;
 
 let set_marker_style (lbl : Label.t) =
   match lbl.annealed with
@@ -73,7 +72,7 @@ let init scale norm m =
   { marker; label; color; linestyle; xs; ys; x_lbl; y_lbl; title }
 ;;
 
-module LinearJV = struct
+module ModelPlotter = struct
   let () =
     Mpl.set_backend (Other "Gtk3Agg");
     Mpl.style_use "ohm.mplstyle"
@@ -81,21 +80,26 @@ module LinearJV = struct
 
   let marker_size = 30.
 
-  let plot ax styling scale =
+  let plot (ax : Matplotlib__.Fig_ax.Ax.t) styling scale =
     let { marker; label; xs; ys; x_lbl; y_lbl; title; _ } = styling in
     let labels = [| label |] in
     (* Ax.plot ax ~label ~linestyle ~xs ys; *)
     let _ =
       match scale with
-      | `Linear -> ()
-      | `Semilog -> Pyplot.semilogy ~label ~linestyle:(Other "") ~xs ys
+      | `Linear -> Pyplot.plot ~label ~linestyle:Dotted ~xs ys
+      | `Semilog -> Pyplot.semilogy ~label ~linestyle:Dotted ~xs ys
     in
-    Ax.scatter ax ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys);
-    Ax.set_title ax title;
-    Ax.legend ax ~labels ~loc:Best ();
-    Ax.set_xlabel ax x_lbl;
-    Ax.set_ylabel ax y_lbl
+    (* Pyplot.scatter ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys); *)
+    Pyplot.xlabel x_lbl;
+    Pyplot.ylabel y_lbl;
+    Pyplot.title title
   ;;
+  (* Pyplot.legend ~labels ~loc:Best () *)
+
+  (* Ax.set_title ax title; *)
+  (* Ax.legend ax ~labels ~loc:Best (); *)
+  (* Ax.set_xlabel ax x_lbl; *)
+  (* Ax.set_ylabel ax y_lbl *)
 end
 
 let show () = Mpl.show ()
@@ -107,9 +111,51 @@ let create scale ~norm m =
   (* ~figsize () in *)
   let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
   let styling = init scale norm m in
-  LinearJV.plot ax styling scale;
+  ModelPlotter.plot ax styling scale;
   (* Fig.suptitle fig "YO THIS IS A FIGURE"; *)
   fig
+;;
+
+let plot_all_traces models scale ~norm ~save =
+  let fig = Fig.create () in
+  let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
+  let labels =
+    Array.map models ~f:(fun m ->
+      let styling = init scale norm m in
+      ModelPlotter.plot ax styling scale;
+      styling.label)
+  in
+  Pyplot.legend ~labels ~loc:Best ();
+  fig
+;;
+
+let plot_by_category category models scale ~norm ~save =
+  let figs =
+    Model.group_by category models
+    |> List.map ~f:(fun group ->
+      let fig = Fig.create () in
+      let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
+      let labels =
+        List.map group ~f:(fun m ->
+          let styling = init scale norm m in
+          ModelPlotter.plot ax styling scale;
+          styling.label)
+        |> Array.of_list
+      in
+      Pyplot.legend ~labels ~loc:Best ();
+      fig)
+  in
+  figs
+;;
+
+let multi_filename group scale (m : Model.t) =
+  let g = string_of_group group in
+  let s =
+    match scale with
+    | `Linear -> "linear"
+    | `Semilog -> "semilog"
+  in
+  String.concat ~sep:"_" [ Int.to_string m.lbl.id; g; s ] ^ ".png"
 ;;
 
 let save_fig scale (m : Model.t) =
@@ -132,4 +178,14 @@ let save_fig scale (m : Model.t) =
   Mpl.savefig file;
   let data = Mpl.plot_data `png in
   Stdio.Out_channel.write_all file ~data
+;;
+
+let create_all models scale ~norm ~save =
+  let _ = plot_all_traces models scale ~norm ~save in
+  if save then save_fig scale models.(0)
+;;
+
+let create_by_category category models scale ~norm ~save =
+  let _ = plot_by_category category models scale ~norm ~save in
+  if save then save_fig scale models.(0)
 ;;

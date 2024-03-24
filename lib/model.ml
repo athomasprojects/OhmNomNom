@@ -10,7 +10,7 @@ type t =
   }
 [@@deriving show, eq]
 
-let compare_by_pitch m1 m2 =
+let compare_by_pos m1 m2 =
   let pos1 = m1.lbl.pos in
   let pos2 = m2.lbl.pos in
   let rows = fst pos1, fst pos2 in
@@ -61,7 +61,7 @@ let make_models_exn ~path area_value area_unit =
   Array.map files ~f:(fun file -> make_exn ~path ~file area_value area_unit)
 ;;
 
-let sort_models models = Array.sort models ~compare:compare_by_pitch
+let sort_models models = Array.sort models ~compare:compare_by_pos
 
 let string_of_group = function
   | `Row -> "Row"
@@ -70,7 +70,7 @@ let string_of_group = function
 ;;
 
 let group_by group models =
-  if not (Array.is_sorted models ~compare:compare_by_pitch)
+  if not (Array.is_sorted models ~compare:compare_by_pos)
   then sort_models models
   else ();
   let max_pos =

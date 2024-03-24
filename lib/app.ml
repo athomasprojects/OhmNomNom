@@ -127,7 +127,7 @@ let create_ui () =
   in
   let area_entry =
     GEdit.entry
-      ~text:"0.36 cm^2"
+      ~text:"0.012544 cm^2"
       ~width:250
       ~packing:(area_hbox#pack ~expand:false ~fill:true ~padding:0)
       ()
@@ -173,7 +173,7 @@ let create_ui () =
                     ~shrink:`BOTH
                     (GMisc.image
                        ~file:
-                         "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r2c1_dark.png"
+                         "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r3c1_dark.png"
                          (* "assets/admiral.jpg" *)
                        ())
                       #coerce
