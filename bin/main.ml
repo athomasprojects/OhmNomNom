@@ -14,19 +14,30 @@ let () =
   Model.sort_models models;
   Model.print_sorted_model_array models;
   Model.print_grouping `Pitch models;
-  let idx = 6 in
-  let _ =
-    let m = models.(idx) in
-    let _semi = Plot.create `Semilog ~norm:true m in
-    Plot.save_fig `Semilog m
-  in
-  let _ =
-    let m = models.(idx) in
-    let _linear = Plot.create `Linear ~norm:true m in
-    Plot.save_fig `Linear m
-    (* Plot.show () *)
-  in
-  let _ = Plot.create_all models `Semilog ~norm:true ~save:true in
-  let _ = Plot.create_by_category `Row models `Semilog ~norm:true ~save:true in
+  (* let idx = 6 in *)
+  (* let _ = *)
+  (*   let m = models.(idx) in *)
+  (*   let scale = `Semilog in *)
+  (*   let _semi = Plot.create scale ~norm:true m in *)
+  (*   let file = Plot.filename scale m in *)
+  (*   Plot.save_fig file m *)
+  (* in *)
+  (* let _ = *)
+  (*   let m = models.(idx) in *)
+  (*   let scale = `Linear in *)
+  (*   let _linear = Plot.create scale ~norm:true m in *)
+  (*   let file = Plot.filename scale m in *)
+  (*   Plot.save_fig file m *)
+  (*   (* Plot.show () *) *)
+  (* in *)
+  (* let _ = Plot.create_all models `Semilog ~norm:true ~save:true in *)
+  (* let _ = Plot.create_by_category `Row models `Semilog ~norm:true ~save:true in *)
+  (* let _ = Plot.create_by_category `Row models `Linear ~norm:true ~save:true in *)
+  (* let _ = Plot.create_by_category `Col models `Semilog ~norm:true ~save:true in *)
+  (* let _ = Plot.create_by_category `Col models `Linear ~norm:true ~save:true in *)
+  (* let _ = *)
+  (*   Plot.create_by_category `Pitch models `Semilog ~norm:true ~save:true *)
+  (* in *)
+  (* let _ = Plot.create_by_category `Pitch models `Linear ~norm:true ~save:true in *)
   App.run ()
 ;;

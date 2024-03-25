@@ -1,3 +1,5 @@
+let tmp_path = "/tmp/ohm_figs"
+
 type tab =
   | Home
   | Inspect
@@ -40,15 +42,60 @@ end
 module State = struct
   open Core
 
+  type sorted_files =
+    { mutable all_linear : string
+    ; mutable all_semilog : string
+    ; mutable by_pitch_linear : string array
+    ; mutable by_pitch_semilog : string array
+    }
+
   type t =
     { mutable data : Model.t array
     ; mutable user_input : Input.t
+    ; mutable filenames : sorted_files
     }
 
   let init () =
     let user_input = Input.init ~dir:"" ~area:"" in
     let data = [||] in
-    { data; user_input }
+    let filenames =
+      { all_linear = ""
+      ; all_semilog = ""
+      ; by_pitch_linear = [||]
+      ; by_pitch_semilog = [||]
+      }
+    in
+    { data; user_input; filenames }
+  ;;
+
+  let get_homepage_filenames () =
+    let open Core in
+    let filter_files x spec =
+      Array.filter x ~f:(fun f -> String.is_substring ~substring:spec f)
+    in
+    let linear = "linear" in
+    let semilog = "semilog" in
+    let files = Stdlib.Sys.readdir "/tmp/ohm_figs" in
+    let sorted =
+      let all = filter_files files "all" in
+      let all_linear =
+        let s = filter_files all linear in
+        s.(0)
+      in
+      let all_semilog =
+        let s = filter_files all semilog in
+        s.(0)
+      in
+      let by_pitch =
+        Array.filter files ~f:(fun f ->
+          String.chop_suffix_exn f ~suffix:".png"
+          |> String.is_substring ~substring:"p")
+      in
+      let by_pitch_linear = filter_files by_pitch linear in
+      let by_pitch_semilog = filter_files by_pitch semilog in
+      { all_linear; all_semilog; by_pitch_linear; by_pitch_semilog }
+    in
+    sorted
   ;;
 
   let update_data t =
@@ -58,8 +105,10 @@ module State = struct
       | [ v; s ] -> Float.of_string v, s
       | _ -> assert false
     in
-    let data = Model.make_models ~path area_value area_str in
-    { t with data }
+    let models = Model.make_models ~path area_value area_str in
+    Model.sort_models models;
+    t.data <- models;
+    t.filenames <- get_homepage_filenames ()
   ;;
 end
 
@@ -69,6 +118,17 @@ let update_entries data_entry area_entry =
   Input.update_dir state.user_input (data_entry#text |> Core.String.strip);
   Input.update_area state.user_input (area_entry#text |> Core.String.strip);
   ()
+;;
+
+let make_figs () =
+  let models = state.data in
+  let norm = true in
+  let save = true in
+  let scales = [ `Linear; `Semilog ] in
+  Core.List.iter scales ~f:(fun scale ->
+    let _ = Plot.create_all models scale ~norm ~save in
+    let _ = Plot.create_by_category `Pitch models scale ~norm ~save in
+    ())
 ;;
 
 let start_button_clicked data_entry area_entry () =
@@ -81,10 +141,16 @@ let start_button_clicked data_entry area_entry () =
       Fmt.pr "%s is not a directory!@." dir;
       false
   in
-  if is_dir then Fmt.pr "Run button clicked: you entered: %s@." dir;
-  Fmt.pr "Area: %s@." area;
-  (* print_dir `update; *)
-  flush stdout
+  if is_dir
+  then (
+    let _ = Fmt.pr "Run button clicked: you entered: %s@." dir in
+    Fmt.pr "Generating figures...@.";
+    State.update_data state;
+    make_figs ();
+    (* if Stdlib.Sys.readdir *)
+    Fmt.pr "Area: %s@." area;
+    flush stdout)
+  else flush stdout
 ;;
 
 let create_ui () =
@@ -165,6 +231,8 @@ let create_ui () =
           (fun i ->
             Seq.iter
               (fun j ->
+                let fig = "assets/admiral.jpg" in
+                Fmt.pr "FIGURE: %s@." fig;
                 let _ =
                   grid#attach
                     ~left:j
@@ -173,8 +241,8 @@ let create_ui () =
                     ~shrink:`BOTH
                     (GMisc.image
                        ~file:
-                         "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r3c1_dark.png"
-                         (* "assets/admiral.jpg" *)
+                         (* "/tmp/ohm_figs/semilog_2114_post_annealing_p360_r3c1_dark.png" *)
+                         fig
                        ())
                       #coerce
                 in

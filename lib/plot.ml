@@ -13,18 +13,6 @@ type styling =
   ; title : string
   }
 
-type group =
-  | All
-  | Single
-  | Pitch
-[@@deriving show, eq, sexp]
-
-let string_of_group = function
-  | All -> "All"
-  | Single -> "Single"
-  | Pitch -> "Pitch"
-;;
-
 let set_marker_style (lbl : Label.t) =
   match lbl.annealed with
   | true -> 'h'
@@ -55,14 +43,11 @@ let init scale norm m =
     | `Linear -> y
     | `Semilog ->
       Array.map y ~f:(fun i -> if Float.is_negative i then Float.abs i else i)
-    (* if Float.is_negative i *)
-    (* then Float.log10 @@ Float.abs i *)
-    (* else Float.log10 i) *)
   in
   let marker = set_marker_style lbl in
   let linestyle = set_linestyle lbl in
   let label = set_plot_label lbl in
-  let title = Label.to_string lbl in
+  let title = "Sample " ^ Int.to_string lbl.id in
   let x_lbl = Data.string_of_volts (Data.units_of_data `Voltage data) in
   let y_lbl =
     let s = Data.string_of_amps (Data.units_of_data `Current data) in
@@ -78,41 +63,76 @@ module ModelPlotter = struct
     Mpl.style_use "ohm.mplstyle"
   ;;
 
-  let marker_size = 30.
-
+  (* let marker_size = 30. *)
   let plot (ax : Matplotlib__.Fig_ax.Ax.t) styling scale =
     let { marker; label; xs; ys; x_lbl; y_lbl; title; _ } = styling in
-    let labels = [| label |] in
-    (* Ax.plot ax ~label ~linestyle ~xs ys; *)
     let _ =
       match scale with
       | `Linear -> Pyplot.plot ~label ~linestyle:Dotted ~xs ys
       | `Semilog -> Pyplot.semilogy ~label ~linestyle:Dotted ~xs ys
     in
-    (* Pyplot.scatter ~marker ~alpha:0.5 ~s:marker_size (Array.zip_exn xs ys); *)
     Pyplot.xlabel x_lbl;
     Pyplot.ylabel y_lbl;
     Pyplot.title title
   ;;
-  (* Pyplot.legend ~labels ~loc:Best () *)
-
-  (* Ax.set_title ax title; *)
-  (* Ax.legend ax ~labels ~loc:Best (); *)
-  (* Ax.set_xlabel ax x_lbl; *)
-  (* Ax.set_ylabel ax y_lbl *)
 end
 
 let show () = Mpl.show ()
 
+let all_traces_filename scale (m : Model.t) =
+  let s =
+    match scale with
+    | `Linear -> "linear"
+    | `Semilog -> "semilog"
+  in
+  String.concat ~sep:"_" [ "all"; Int.to_string m.lbl.id; s ] ^ ".png"
+  |> String.lowercase
+;;
+
+let group_filename group scale (m : Model.t) =
+  let g =
+    match group with
+    | `Row -> "row" ^ (fst m.lbl.pos |> Int.to_string)
+    | `Col -> "col" ^ (snd m.lbl.pos |> Int.to_string)
+    | `Pitch -> "p" ^ (m.lbl.pitch |> Int.to_string)
+  in
+  let s =
+    match scale with
+    | `Linear -> "linear"
+    | `Semilog -> "semilog"
+  in
+  String.concat ~sep:"_" [ Int.to_string m.lbl.id; g; s ] ^ ".png"
+  |> String.lowercase
+;;
+
+let filename scale (m : Model.t) =
+  let s =
+    match scale with
+    | `Linear -> "linear_"
+    | `Semilog -> "semilog_"
+  in
+  s ^ Model.replace_file_ext m ~old:"txt" ~ext:"png"
+;;
+
+let save_fig file (m : Model.t) =
+  let path = "/tmp/ohm_figs/" in
+  let _ =
+    try Stdlib.Sys.is_directory path with
+    | Sys_error _ ->
+      Stdlib.Sys.mkdir path 0o755;
+      true
+  in
+  Mpl.savefig (path ^ file);
+  let data = Mpl.plot_data `png in
+  Stdio.Out_channel.write_all file ~data
+;;
+
 let create scale ~norm m =
-  (* let fg_sz = 4. in *)
-  (* let figsize = fg_sz, fg_sz in *)
   let fig = Fig.create () in
-  (* ~figsize () in *)
   let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
   let styling = init scale norm m in
   ModelPlotter.plot ax styling scale;
-  (* Fig.suptitle fig "YO THIS IS A FIGURE"; *)
+  Pyplot.legend ~labels:[| styling.label |] ~loc:Best ();
   fig
 ;;
 
@@ -130,9 +150,9 @@ let plot_all_traces models scale ~norm ~save =
 ;;
 
 let plot_by_category category models scale ~norm ~save =
-  let figs =
-    Model.group_by category models
-    |> List.map ~f:(fun group ->
+  let models' = Model.group_by category models in
+  let figs_files =
+    List.map models' ~f:(fun group ->
       let fig = Fig.create () in
       let ax = Fig.add_subplot fig ~nrows:1 ~ncols:1 ~index:1 in
       let labels =
@@ -143,49 +163,21 @@ let plot_by_category category models scale ~norm ~save =
         |> Array.of_list
       in
       Pyplot.legend ~labels ~loc:Best ();
-      fig)
+      let m' = List.hd_exn group in
+      let file = group_filename category scale m' in
+      if save then save_fig file m';
+      fig, file)
   in
-  figs
-;;
-
-let multi_filename group scale (m : Model.t) =
-  let g = string_of_group group in
-  let s =
-    match scale with
-    | `Linear -> "linear"
-    | `Semilog -> "semilog"
-  in
-  String.concat ~sep:"_" [ Int.to_string m.lbl.id; g; s ] ^ ".png"
-;;
-
-let save_fig scale (m : Model.t) =
-  let path = "/tmp/ohm_figs/" in
-  let _ =
-    try Stdlib.Sys.is_directory path with
-    | Sys_error _ ->
-      Stdlib.Sys.mkdir path 0o755;
-      true
-  in
-  let file =
-    let s =
-      match scale with
-      | `Linear -> "linear_"
-      | `Semilog -> "semilog_"
-    in
-    let f = s ^ Model.replace_file_ext m ~old:"txt" ~ext:"png" in
-    path ^ f
-  in
-  Mpl.savefig file;
-  let data = Mpl.plot_data `png in
-  Stdio.Out_channel.write_all file ~data
+  figs_files
 ;;
 
 let create_all models scale ~norm ~save =
   let _ = plot_all_traces models scale ~norm ~save in
-  if save then save_fig scale models.(0)
+  let file = all_traces_filename scale models.(0) in
+  if save then save_fig file models.(0)
 ;;
 
 let create_by_category category models scale ~norm ~save =
   let _ = plot_by_category category models scale ~norm ~save in
-  if save then save_fig scale models.(0)
+  ()
 ;;
